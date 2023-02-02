@@ -15,3 +15,18 @@ foreach ($rg in $resources)    { 
    $total = 0 
 }
 
+# Another Way
+
+$RGs = Get-AzResourceGroup
+foreach($RG in $RGs)
+{  
+   
+   $resources = Get-AzConsumptionUsageDetail -ResourceGroup $RG.ResourceGroupName -StartDate (get-date).AddDays(-7) -EndDate (get-date) 
+    Write-Output ' Resourcegroupname:' $RG.ResourceGroupName | ft 
+   foreach ($rg in $resources)   
+    { 
+        $total = $total + $rg.PretaxCost 
+    } 
+    Write-Output 'The total cost ' $total   | ft  
+  $total = 0
+}
