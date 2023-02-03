@@ -31,3 +31,27 @@ $sortedCostData = $resourceCost | Sort-Object -Property Cost -Descending # Outp
 foreach ($item in $sortedCostData) {
   Write-Output "$($item.Resource) - $($item.Cost)"
 }
+
+
+
+# using Export to csv file or txt or
+
+$start = (Get-Date).AddDays(-7)
+$end = Get-Date
+$costData = Get-AzConsumptionUsageDetail -StartDate 2022-01-27 -EndDate 2023-02-01
+$groupedData = $costData | Group-Object -Property InstanceName
+$resourceCost = @()
+foreach ($group in $groupedData) {
+  $resource = $group.Name
+  $totalCost = ($group.Group | Measure-Object -Property PretaxCost -Sum).Sum
+  $resourceCost += [PSCustomObject]@{
+    Resource = $resource
+    Cost = $totalCost
+  }
+}
+$sortedCostData = $resourceCost | Sort-Object -Property Cost -Descending
+$output = ''
+foreach ($item in $sortedCostData) {
+  $output += "$($item.Resource) - $($item.Cost)" + [Environment]::NewLine
+}
+$output | Out-File -FilePath "CostData.txt"
