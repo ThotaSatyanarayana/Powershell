@@ -30,3 +30,23 @@ foreach($RG in $RGs)
     Write-Output 'The total cost ' $total   | ft  
   $total = 0
 }
+
+
+# Export txt or csv 
+
+$RGs = Get-AzResourceGroup
+$output = ""
+foreach($RG in $RGs)
+{
+$StartDate = [datetime]::Today.AddDays(-7).ToString('MM/dd/yyyy')
+$EndDate = [datetime]::Today.ToString('MM/dd/yyyy')
+$resources = Get-AzConsumptionUsageDetail -ResourceGroup $RG.ResourceGroupName -StartDate (get-date).AddDays(-7) -EndDate (get-date)
+$output += "Resourcegroupname: $($RG.ResourceGroupName)" + [Environment]::NewLine
+foreach ($rg in $resources)
+{
+$total = $total + $rg.PretaxCost
+}
+$output += "The total cost: $total" + [Environment]::NewLine
+$total = 0
+}
+$output | Out-File cost_reGroup.txt -Encoding ASCII
