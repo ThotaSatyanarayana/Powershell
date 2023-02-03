@@ -32,3 +32,5 @@ catch
 Write-Host $error[0]
 }
 }
+
+$VMReport | Export-Csv "report.csv"
