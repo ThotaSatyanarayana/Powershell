@@ -1,22 +1,26 @@
-# Set the subscription that contains the snapshots
-Set-AzContext -SubscriptionId "a8cddc3a-fd61-452d-8abe-f7b44b38f5fd"
+# Connect to Azure
+Connect-AzAccount
 
-# Get the list of snapshots in the subscription
-$snapshots = Get-AzSnapshot
+# Define the idle threshold (in days)
+$idleThreshold = 30
 
-# Loop through each snapshot and calculate its age
-foreach ($snapshot in $snapshots) {
-    # Calculate the age of the snapshot
-    $age = [int]((Get-Date) - $snapshot.TimeCreated ).TotalDays
+# Get a list of all virtual machines in Azure
+$vms = Get-AzVM
 
-    # Check if the snapshot is older than 30 days
-    if ($age -gt 30) {
-        Write-Output "Snapshot $($snapshot.Name) in resource group $($snapshot.ResourceGroupName) is older than 30 days."
+# Loop through each virtual machine
+foreach ($vm in $vms) {
+    # Get the current status of the virtual machine
+    $status = $vm.PowerState
+
+    # Get the last active time of the virtual machine
+    $lastActive = Get-AzDiagnosticSetting -ResourceId $vm.Id | Select-Object -ExpandProperty StorageAccount
+
+    # Calculate the time since the virtual machine was last active
+    $idleTime = (Get-Date) - $lastActive
+
+    # Check if the virtual machine has been idle for longer than the threshold
+    if ($status -eq "VM running" -and $idleTime.TotalDays -gt $idleThreshold) {
+        # Output the virtual machine as idle
+        Write-Output "Virtual machine '$($vm.Name)' is idle ($($idleTime.TotalDays) days)"
     }
-    else
-   {
-       Write-Output "Plz check once conditaion days"
-   }
-
-
 }
