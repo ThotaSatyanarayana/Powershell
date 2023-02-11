@@ -18,3 +18,14 @@ $orphanedPercentage = [math]::Round(($orphanedAccounts / $totalAccounts) * 100, 
 
 
 Write-Output "Total storage accounts: $totalAccounts" "Orphaned storage accounts: $orphanedAccounts" "Percentage of orphaned storage accounts: $orphanedPercentage%"  | Out-File orphan1.txt
+
+
+
+
+# Another Method.........
+
+$storageAccounts = Get-AzStorageAccount
+$resources = Get-AzResource | Where-Object { $_.Type -eq 'Microsoft.Storage/storageAccounts' }
+$usedStorageAccounts = $resources | Select-Object -ExpandProperty Name
+$orphanedStorageAccounts = $storageAccounts | Where-Object { $_.Name -notin $usedStorageAccounts }
+$orphanedStorageAccounts | Select-Object -Property StorageAccountName,ResourceGroupName,PrimaryLocation,CreationTime 
