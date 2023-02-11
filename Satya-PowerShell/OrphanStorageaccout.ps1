@@ -29,3 +29,20 @@ $resources = Get-AzResource | Where-Object { $_.Type -eq 'Microsoft.Storage/stor
 $usedStorageAccounts = $resources | Select-Object -ExpandProperty Name
 $orphanedStorageAccounts = $storageAccounts | Where-Object { $_.Name -notin $usedStorageAccounts }
 $orphanedStorageAccounts | Select-Object -Property StorageAccountName,ResourceGroupName,PrimaryLocation,CreationTime 
+
+
+
+
+
+
+#percentage orphan
+
+$storageAccounts = Get-AzStorageAccount
+$resources = Get-AzResource | Where-Object { $_.Type -eq 'Microsoft.Storage/storageAccounts' }
+$usedStorageAccounts = $resources | Select-Object -ExpandProperty Name
+$orphanedStorageAccounts = $storageAccounts | Where-Object { $_.StorageAccountName -notin $usedStorageAccounts }
+$totalStorageAccounts = $storageAccounts.Count
+$totalOrphanedStorageAccounts = $orphanedStorageAccounts.Count
+$percentageOrphanedStorageAccounts = ($totalOrphanedStorageAccounts / $totalStorageAccounts) * 100
+$percentageOrphanedStorageAccounts
+$orphanedStorageAccounts | Select-Object -Property StorageAccountName,ResourceGroupName,PrimaryLocation,CreationTime 
