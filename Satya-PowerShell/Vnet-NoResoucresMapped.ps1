@@ -1,4 +1,36 @@
 
+$empty_vnets =@()
+  $VNETs = Get-AzVirtualNetwork 
+    foreach ($VNET in $VNETs) {
+        
+         
+       
+
+        $vNetExpanded = Get-AzVirtualNetwork -Name $VNET.Name -ResourceGroupName $VNET.ResourceGroupName -ExpandResource 'subnets/ipConfigurations' 
+
+        foreach($subnet in $vNetExpanded.Subnets)
+        {
+            $Vnetconnetcount = $subnet.IpConfigurations.Count
+            
+        }
+	# $Vnetconnetcount
+         if ($Vnetconnetcount -eq 0) {
+      $empty_vnet = [PSCustomObject]@{
+            'VentName' = $VNET.Name
+            'Location' = $VNET.Location
+             'ResourceGroupName'= $VNET.ResourceGroupName
+            }
+
+        $empty_vnets += $empty_vnet
+    }
+
+       
+    }
+ $empty_vnets
+ 
+................................
+
+
 # Connect to your Azure account
 Connect-AzAccount
 
