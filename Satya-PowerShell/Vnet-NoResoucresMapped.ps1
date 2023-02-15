@@ -1,4 +1,38 @@
 
+# Connect to your Azure account
+Connect-AzAccount
+
+$vnets = Get-AzVirtualNetwork
+
+# Loop through each virtual network to check if it has any resources
+$empty_vnets = @()
+foreach ($vnet in $vnets) {
+    $resources = Get-AzResource -ResourceGroupName $vnet.ResourceGroupName
+    if ($resources.Count -eq 1 -and $resources[0].ResourceType -eq "Microsoft.Network/virtualNetworks") {
+        # If there is only one resource and it is the virtual network itself, add it to the list of empty virtual networks
+        $empty_vnet = [PSCustomObject]@{
+            'StorageAccountName' = $vnet.Name
+            'Location' = $vnet.Location
+             'ResourceGroupName'= $vnet.ResourceGroupName
+      }
+
+        $empty_vnets += $empty_vnet
+    }
+}
+
+# Display the list of empty virtual networks
+$empty_vnets
+
+
+
+
+
+
+
+...............................
+
+# Not Correct
+
 # Get a list of all virtual networks in the current subscription
 $virtualNetworks = Get-AzVirtualNetwork
 
