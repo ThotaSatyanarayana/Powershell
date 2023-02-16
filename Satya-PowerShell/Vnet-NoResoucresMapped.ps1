@@ -56,7 +56,29 @@ foreach ($vnet in $vnets) {
 $empty_vnets
 
 
+...............................
 
+#Locaton and Totalcount
+
+$locationcouns =@()
+$resourceGroups = Get-AzResourceGroup
+
+# Iterate through each location
+foreach ($location in ($resourceGroups | Select-Object -Property Location -Unique)) {
+    # Get resource groups in the current location
+    $locationResourceGroups = $resourceGroups | Where-Object { $_.Location -eq $location.Location }
+
+    # Filter resource groups with no resources
+    $emptyResourceGroups = $locationResourceGroups | Where-Object { (Get-AzResource -ResourceGroupName $_.ResourceGroupName).Count -eq 0 }
+
+   $locationcoun = [PSCustomObject]@{
+   RGLocation = $location.Location
+   TotalCount = $emptyResourceGroups.Count
+}
+$locationcouns += $locationcoun
+   
+}
+$locationcouns
 
 
 
