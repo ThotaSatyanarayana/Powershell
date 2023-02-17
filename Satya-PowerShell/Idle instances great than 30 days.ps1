@@ -1,26 +1,24 @@
-# Connect to Azure
+# Get the Azure context
 Connect-AzAccount
 
-# Define the idle threshold (in days)
-$idleThreshold = 30
+# Get the list of all instances in the subscription
+$instances = Get-AzVM
 
-# Get a list of all virtual machines in Azure
-$vms = Get-AzVM
+# Loop through the instances and check if they have been idle for the last 30 days
+foreach ($instance in $instances) {
+    # Get the status of the instance
+    $status = (Get-AzVM -ResourceGroupName $instance.ResourceGroupName -Name $instance.Name -Status).Statuses
 
-# Loop through each virtual machine
-foreach ($vm in $vms) {
-    # Get the current status of the virtual machine
-    $status = $vm.PowerState
+    # Check if the instance is running and has been idle for the last 30 days
+    if ($status.Code -eq "PowerState/deallocated" -and $status[1].DisplayStatus -eq "VM deallocated") {
+        $lastActivityTime = $status[0].Time
+        $Days = ((Get-date) - $lastActivityTime).Days
+     #$Days
+      if ( $Days -ge 30)
+      {
+        Write-Output "Instance $($instance.Name) in Resource Group $($instance.ResourceGroupName) has been idle for more than 30 days."
+       }
 
-    # Get the last active time of the virtual machine
-    $lastActive = Get-AzDiagnosticSetting -ResourceId $vm.Id | Select-Object -ExpandProperty StorageAccount
-
-    # Calculate the time since the virtual machine was last active
-    $idleTime = (Get-Date) - $lastActive
-
-    # Check if the virtual machine has been idle for longer than the threshold
-    if ($status -eq "VM running" -and $idleTime.TotalDays -gt $idleThreshold) {
-        # Output the virtual machine as idle
-        Write-Output "Virtual machine '$($vm.Name)' is idle ($($idleTime.TotalDays) days)"
-    }
+         
+  }
 }
