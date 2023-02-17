@@ -33,7 +33,7 @@ foreach ($snapshot in $orphanedSnapshots) {     # Get the snapshot creation 
     $snapshotCreateTime = $snapshot.TimeCreated     # Get the snapshot size
     $snapshotSize = $snapshot.DiskSizeGB     # Calculate the number of days since the snapshot was created
     $daysSinceCreation = ((get-Date) - $snapshot.TimeCreated).Days     # Calculate the cost of the snapshot
-    $snapshotCost = $snapshotSize * 0.05 * $daysSinceCreation     # Add the snapshot cost to the total cost
+    $snapshotCost = $snapshotSize * 0.0550 * $daysSinceCreation     # Add the snapshot cost to the total cost
     $totalCost += $snapshotCost  # Remove +
   $orphanedSnapshotlist = [PSCustomObject]@{
 SnapshotName =$snapshot.Name
